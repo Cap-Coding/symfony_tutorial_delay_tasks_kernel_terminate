@@ -1,0 +1,11 @@
+api_v1_reservation_show:
+    path: /api/v1/reservations/{id}
+    controller: App\Controller\ReservationController::showAction
+
+api_v1_reservation_create:
+    path: /api/v1/reservations
+    controller: App\Controller\ReservationController::createAction
+
+api_v2_reservation_create:
+    path: /api/v2/reservations
+    controller: App\Controller\ReservationController::createAction
