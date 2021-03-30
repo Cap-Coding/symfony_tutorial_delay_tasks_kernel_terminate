@@ -19,6 +19,9 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Kernel.php'
             - '../src/Tests/'
+            - '../src/Form/'
+            - '../src/Repository/'
+            - '../src/Repository/Exception/'
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
@@ -26,7 +29,16 @@ services:
         resource: '../src/Controller/'
         tags: ['controller.service_arguments']
 
-    App\EventListener\ReservationGetListener:
+    App\EventListener\OnReservationRetrievalListener:
+        arguments:
+            - '@App\Dto\Transformer\Request\ReservationRequestDtoTransformer'
+            - '@App\Service\ApiClient'
+            - '@Psr\Log\LoggerInterface'
+            - '@Doctrine\ORM\EntityManagerInterface'
+        tags:
+            - { name: kernel.event_listener, event: kernel.terminate, method: 'onKernelTerminate' }
+
+    App\EventListener\OnReservationCreationListener:
         arguments:
             - '@App\Service\ApiClient'
             - '@Doctrine\ORM\EntityManagerInterface'
@@ -34,13 +46,8 @@ services:
         tags:
             - { name: kernel.event_listener, event: kernel.terminate, method: 'onKernelTerminate' }
 
-    App\EventListener\ReservationCreationListener:
+    App\EventSubscriber\ReservationSubscriber:
         arguments:
-            - '@App\Service\ApiClient'
-            - '@Doctrine\ORM\EntityManagerInterface'
-            - '@App\Dto\Transformer\Request\ReservationRequestDtoTransformer'
+            - '@App\Service\ReservationStorage'
         tags:
-            - { name: kernel.event_listener, event: kernel.terminate, method: 'onKernelTerminate' }
-
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+            - { name: doctrine.event_subscriber }

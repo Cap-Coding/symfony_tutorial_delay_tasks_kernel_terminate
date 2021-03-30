@@ -1,26 +1,31 @@
-# Design pattern "Chain of responsibility" (Symfony implementation)
+# Delay "heavy" tasks in Symfony with event kernel.terminate
 
-Watch full tutorial [here](https://youtu.be/3KQlubIv684)
+Watch full tutorial [here](https://youtu.be/HrQme9KUlUg)
 
-# Launch project
+## Launch project
 
 Run in terminal `make up`
 
-Sample API request:
+### Sample API request:
 
 ```
-curl --location --request POST 'http://localhost:8080/api/locations/resolve' \
---header 'content-type: application/json' \
+curl --location --request POST 'http://localhost:8080/api/v1/reservations' \
+--header 'Content-Type: application/json' \
 --data-raw '{
-    "name": "My closest gym"
+    "name": "some reservation",
+    "price": 200
 }'
 ```
 
 # Other video tutorials
 
+## Design pattern "Chain of responsibility" (Symfony implementation)
+
+There is a [video](https://youtu.be/3KQlubIv684)
+
 ## Create Symfony 5 project with Docker and Postgres
 
-Watch full tutorial [here](https://youtu.be/69wjRPQ0A_U)
+There is a [video](https://youtu.be/69wjRPQ0A_U)
 
 ## How to use data transfer objects (DTO) in Symfony API application
     

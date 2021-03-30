@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Dto\Transformer\Request;
+namespace App\Dto\Transformer\Response;
 
 use App\Dto\Transformer\AbstractDtoTransformer;
 use App\Entity\Reservation;
 
-class ReservationRequestDtoTransformer extends AbstractDtoTransformer
+class ReservationResponseDtoTransformer extends AbstractDtoTransformer
 {
     /**
      * @param Reservation $reservation
@@ -17,6 +17,7 @@ class ReservationRequestDtoTransformer extends AbstractDtoTransformer
     public function transformFromObject($reservation): array
     {
         return [
+            'id' => $reservation->getId(),
             'name' => $reservation->getName(),
             'price' => $reservation->getPrice(),
         ];

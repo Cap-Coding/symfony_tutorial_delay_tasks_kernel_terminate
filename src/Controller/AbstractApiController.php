@@ -12,9 +12,9 @@ abstract class AbstractApiController extends AbstractFOSRestController
 {
     protected function buildForm(string $type, $data = null, array $options = []): FormInterface
     {
-        $options = array_merge($options, [
-           'csrf_protection' => false,
-        ]);
+        $defaultOptions = [];
+
+        $options = array_merge($options, $defaultOptions);
 
         return $this->container->get('form.factory')->createNamed('', $type, $data, $options);
     }

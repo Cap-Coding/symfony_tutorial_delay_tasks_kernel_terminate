@@ -8,24 +8,32 @@ use App\Dto\Transformer\DtoTransformerInterface;
 use App\Entity\Reservation;
 use App\Exception\ApiClientException;
 use App\Service\ApiClient;
+use App\Service\ReservationStorage;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
-class ReservationCreationListener
+class OnReservationCreationListener
 {
     private ApiClient $apiClient;
     private EntityManagerInterface $entityManager;
     private DtoTransformerInterface $requestReservationTransformer;
+    private ReservationStorage $reservationStorage;
+    private LoggerInterface $logger;
 
     public function __construct(
         ApiClient $apiClient,
         EntityManagerInterface $entityManager,
-        DtoTransformerInterface $reservationTransformer
+        DtoTransformerInterface $reservationTransformer,
+        ReservationStorage $reservationStorage,
+        LoggerInterface $logger
     ) {
         $this->apiClient = $apiClient;
         $this->entityManager = $entityManager;
         $this->requestReservationTransformer = $reservationTransformer;
+        $this->reservationStorage = $reservationStorage;
+        $this->logger = $logger;
     }
 
     public function onKernelTerminate(TerminateEvent $event): void
@@ -35,10 +43,6 @@ class ReservationCreationListener
         }
 
         $request = $event->getRequest();
-
-        if ('POST' !== $request->getMethod()) {
-            return;
-        }
 
         $allowedRoutes = [
             'api_v1_reservation_create',
@@ -64,21 +68,18 @@ class ReservationCreationListener
                 $requestDto
             );
         } catch (ApiClientException $e) {
-            $response = [];
+            $this->logger->error('Error during API call: ' . $e->getMessage());
         }
+
+        // Do something with response
     }
 
     private function getReservation(TerminateEvent $event): ?Reservation
     {
-        return $this->getReservationFromResponse($event->getResponse());
-//        return $this->getReservationFromService();
+//        return $this->getReservationFromResponse($event->getResponse());
+        return $this->getReservationFromService();
     }
 
-    /**
-     * @param Response $response
-     *
-     * @return Reservation|null
-     */
     private function getReservationFromResponse(Response $response): ?Reservation
     {
         $content = \json_decode($response->getContent(), true);
@@ -90,11 +91,8 @@ class ReservationCreationListener
         return $this->entityManager->getRepository(Reservation::class)->findOneBy([ 'id' => $content['id'] ]);
     }
 
-    /**
-     * @return Reservation|null
-     */
     private function getReservationFromService(): ?Reservation
     {
-        return null;
+        return $this->reservationStorage->getReservation();
     }
 }

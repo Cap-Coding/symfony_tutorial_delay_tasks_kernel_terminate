@@ -1,6 +1,19 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:12.4-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_DB: test
+      POSTGRES_USER: sf_user
+      POSTGRES_PASSWORD: random_password
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - db-data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+
   php:
     build:
       context: .
@@ -15,7 +28,6 @@ services:
       PHP_IDE_CONFIG: serverName=localhost
     volumes:
       - .:/app:rw,cached
-      - var:/app/var
 
   nginx:
     build:
@@ -31,4 +43,4 @@ services:
       - "8080:80"
 
 volumes:
-  var:
+  db-data:

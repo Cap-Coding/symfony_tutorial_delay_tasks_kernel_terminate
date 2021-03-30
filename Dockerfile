@@ -7,6 +7,10 @@ ARG WORKDIR=/app
 
 RUN docker-php-source extract \
     && apk add --update --virtual .build-deps autoconf g++ make pcre-dev icu-dev openssl-dev libxml2-dev libmcrypt-dev git libpng-dev \
+# Install pgsql goodness
+    && apk add postgresql-dev \
+    && docker-php-ext-install pgsql pdo_pgsql \
+    && apk del postgresql-libs libsasl db \
 # Instaling pecl modules
 	&& pecl install apcu xdebug \
 # Enable pecl modules
@@ -39,17 +43,18 @@ WORKDIR ${WORKDIR}
 # prevent the reinstallation of vendors at every changes in the source code
 COPY composer.json composer.lock symfony.lock ./
 RUN set -eux; \
-	composer install --prefer-dist --no-autoloader --no-scripts  --no-progress --no-suggest; \
+	composer install --prefer-dist --no-autoloader --no-scripts  --no-progress; \
 	composer clear-cache
 
 RUN set -eux \
 	&& mkdir -p var/cache var/log \
 	&& composer dump-autoload --classmap-authoritative
 
-VOLUME ${WORKDIR}/var
-
 COPY docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 RUN chmod +x /usr/local/bin/docker-entrypoint
+
+RUN chown www-data:www-data -R ${WORKDIR}/var/*
+USER www-data
 
 ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]

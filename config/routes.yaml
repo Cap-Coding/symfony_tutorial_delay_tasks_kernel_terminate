@@ -1,11 +1,16 @@
 api_v1_reservation_show:
     path: /api/v1/reservations/{id}
+    methods: [ GET ]
     controller: App\Controller\ReservationController::showAction
+    requirements:
+        id: \d+
 
 api_v1_reservation_create:
     path: /api/v1/reservations
+    methods: [ POST ]
     controller: App\Controller\ReservationController::createAction
 
 api_v2_reservation_create:
     path: /api/v2/reservations
+    methods: [ POST ]
     controller: App\Controller\ReservationController::createAction
